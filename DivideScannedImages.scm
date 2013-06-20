@@ -1,8 +1,11 @@
 ; DivideScannedImages.scm
 ; by Rob Antonishen
 ; http://ffaat.pointclark.net
+; additional (slight) modification by Francois Malan
+;
+; Instructions for use at: http://francoismalan.com/2013/01/how-to-batch-separate-crop-multiple-scanned-photos/
 
-; Version 2.0 (20123108)
+; Version 2.1F (2013-01-05)
 
 ; Description
 ;
