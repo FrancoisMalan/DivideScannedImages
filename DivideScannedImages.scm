@@ -25,6 +25,8 @@
 ; v1.7 - added batch mode for whole directories, plus bug fix for no deskew plugin and saving files, also a fix to get both cases of file
 ; v1.8 - should now work on both windows and linux using the pathchar def.
 ; v1.9 - added sort code to the batch script
+; v2.0 - expand image on edges so that selection works properly
+; v2.1F - (fmalan) Added TIF support
 
 ; License:
 ;
@@ -71,10 +73,10 @@
     ;or start GIMP wwith "gimp --console-messages" to spawn a console box
     ;then use this:
     ;(gimp-message "foobar") 
-
+    
     ;testing for functions defined
     ;(if (defined? 'plug-in-shift) (gimp-message "It Exists") (gimp-message "Doesnt Exist"))
-
+    
     ;set up saving
     (if (= inSaveFiles TRUE)
       (set! saveString
@@ -82,8 +84,16 @@
         (( equal? inSaveType 0 ) ".jpg" )
         (( equal? inSaveType 1 ) ".bmp" )
         (( equal? inSaveType 2 ) ".png" )
+		(( equal? inSaveType 3 ) ".tif" )
       )
     ))
+    
+    ; Expand the image a bit to fix problem with images near the right edge. Probably could get away just expanding
+    ; width but go ahead and expand height in case same issue is there...
+    (set! width (+ width 30))
+    (set! height (+ height 30))
+    (gimp-image-resize img width height 15 15)
+    (gimp-layer-resize-to-image-size inLayer)
     
     ; convert in inverted copy of the background selection to a path using the selected corner
     (cond 
@@ -208,7 +218,7 @@
                     SF-ADJUSTMENT "Background Sample Y Offset"          (list 5 1 100 1 10 1 SF-SLIDER)
                     SF-TOGGLE     "Save and Close Extracted Images"     FALSE       
                     SF-DIRNAME    "Save Directory"                      ""
-                    SF-OPTION     "Save File Type"                      (list "jpg" "bmp" "png")
+                    SF-OPTION     "Save File Type"                      (list "jpg" "bmp" "png" "tif")
                     SF-STRING     "Save File Base Name"                 "IMAGE"
                     SF-ADJUSTMENT "Save File Start Number"              (list 0 0 9000 1 100 0 SF-SPINNER)                  
 )
@@ -260,6 +270,7 @@
     (( equal? inLoadType 0 ) ".[jJ][pP][gG]" )
     (( equal? inLoadType 1 ) ".[bB][mM][pP]" )
     (( equal? inLoadType 2 ) ".[pP][nN][gG]" )
+	(( equal? inLoadType 3 ) ".[tT][iI][fF]" )
     ))  
 
     (set! varFileList (merge-sort string<=? (cadr (file-glob (string-append inSourceDir pathchar "*" varLoadStr)  1))))
@@ -288,10 +299,10 @@
                     "Batch devide a folder of full page scans images."
                     "Rob Antonishen"
                     "Rob Antonishen"
-                    "May 2009"
+                    "January 2013"
                     ""
                     SF-DIRNAME    "Load from" ""
-                    SF-OPTION     "Load File Type" (list "jpg" "bmp" "png") 
+                    SF-OPTION     "Load File Type" (list "jpg" "bmp" "png" "tif") 
                     SF-ADJUSTMENT "Selection Threshold"                 (list 10 0 255 1 10 1 SF-SLIDER)
                     SF-ADJUSTMENT "Size Threshold"                      (list 100 0 2000 10 100 1 SF-SLIDER)        
                     SF-ADJUSTMENT "Abort Limit"                         (list 5 1 100 1 10 1 SF-SLIDER)                         
@@ -299,7 +310,7 @@
                     SF-ADJUSTMENT "Background Sample X Offset"          (list 5 1 100 1 10 1 SF-SLIDER)                         
                     SF-ADJUSTMENT "Background Sample Y Offset"          (list 5 1 100 1 10 1 SF-SLIDER)
                     SF-DIRNAME    "Save Directory"                      ""
-                    SF-OPTION     "Save File Type"                      (list "jpg" "bmp" "png")
+                    SF-OPTION     "Save File Type"                      (list "jpg" "bmp" "png" "tif")
                     SF-STRING     "Save File Base Name"                 "IMAGE"
                     SF-ADJUSTMENT "Save File Start Number"              (list 0 0 9000 1 100 0 SF-SPINNER)       
 )
