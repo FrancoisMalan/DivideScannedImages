@@ -2,7 +2,7 @@
 ; by Rob Antonishen
 ; http://ffaat.pointclark.net
 
-; Version 1.9 (20101007)
+; Version 2.0 (20123108)
 
 ; Description
 ;
