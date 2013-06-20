@@ -1,4 +1,4 @@
-# DevideScannedImages 
+# DivideScannedImages 
 
 * is a plugin for [GIMP](http://en.wikipedia.org/wiki/GIMP).
 * Is free (GPL)
