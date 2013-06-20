@@ -84,7 +84,7 @@
         (( equal? inSaveType 0 ) ".jpg" )
         (( equal? inSaveType 1 ) ".bmp" )
         (( equal? inSaveType 2 ) ".png" )
-		(( equal? inSaveType 3 ) ".tif" )
+	(( equal? inSaveType 3 ) ".tif" )
       )
     ))
     
