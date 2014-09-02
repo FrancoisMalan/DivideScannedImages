@@ -268,10 +268,10 @@
     (set! varLoadStr
     (cond 
     (( equal? inLoadType 0 ) ".[jJ][pP][gG]" )
-    (( equal? inLoadType 0 ) ".[jJ][pP][eE][gG]" )
-    (( equal? inLoadType 1 ) ".[bB][mM][pP]" )
-    (( equal? inLoadType 2 ) ".[pP][nN][gG]" )
-	(( equal? inLoadType 3 ) ".[tT][iI][fF]" )
+    (( equal? inLoadType 1 ) ".[jJ][pP][eE][gG]" )
+    (( equal? inLoadType 2 ) ".[bB][mM][pP]" )
+    (( equal? inLoadType 3 ) ".[pP][nN][gG]" )
+    (( equal? inLoadType 4 ) ".[tT][iI][fF]" )
     ))  
 
     (set! varFileList (merge-sort string<=? (cadr (file-glob (string-append inSourceDir pathchar "*" varLoadStr)  1))))
