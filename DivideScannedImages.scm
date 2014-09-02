@@ -268,6 +268,7 @@
     (set! varLoadStr
     (cond 
     (( equal? inLoadType 0 ) ".[jJ][pP][gG]" )
+    (( equal? inLoadType 0 ) ".[jJ][pP][eE][gG]" )
     (( equal? inLoadType 1 ) ".[bB][mM][pP]" )
     (( equal? inLoadType 2 ) ".[pP][nN][gG]" )
 	(( equal? inLoadType 3 ) ".[tT][iI][fF]" )
