@@ -220,7 +220,7 @@
                     SF-ADJUSTMENT "Background Sample Y Offset"          (list 5 1 100 1 10 1 SF-SLIDER)
                     SF-TOGGLE     "Save and Close Extracted Images"     FALSE       
                     SF-DIRNAME    "Save Directory"                      ""
-                    SF-OPTION     "Save File Type"                      (list "jpg" "bmp" "png" "tif")
+                    SF-OPTION     "Save File Type"                      (list "jpg" "jpeg" "bmp" "png" "tif" "tiff")
                     SF-STRING     "Save File Base Name"                 "IMAGE"
                     SF-ADJUSTMENT "Save File Start Number"              (list 0 0 9000 1 100 0 SF-SPINNER)                  
 )
