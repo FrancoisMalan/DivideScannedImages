@@ -85,7 +85,7 @@
         (( equal? inSaveType 0 ) ".jpg" )
         (( equal? inSaveType 1 ) ".bmp" )
         (( equal? inSaveType 2 ) ".png" )
-	(( equal? inSaveType 3 ) ".tif" )
+        (( equal? inSaveType 3 ) ".tif" )
       )
     ))
     
@@ -220,7 +220,7 @@
                     SF-ADJUSTMENT "Background Sample Y Offset"          (list 5 1 100 1 10 1 SF-SLIDER)
                     SF-TOGGLE     "Save and Close Extracted Images"     FALSE       
                     SF-DIRNAME    "Save Directory"                      ""
-                    SF-OPTION     "Save File Type"                      (list "jpg" "jpeg" "bmp" "png" "tif" "tiff")
+                    SF-OPTION     "Save File Type"                      (list  "jpg" "bmp" "png" "tif")
                     SF-STRING     "Save File Base Name"                 "IMAGE"
                     SF-ADJUSTMENT "Save File Start Number"              (list 0 0 9000 1 100 0 SF-SPINNER)                  
 )
@@ -306,7 +306,7 @@
                     "January 2013"
                     ""
                     SF-DIRNAME    "Load from" ""
-                    SF-OPTION     "Load File Type" (list "jpg" "bmp" "png" "tif") 
+                    SF-OPTION     "Load File Type" (list "jpg" "jpeg" "bmp" "png" "tif" "tiff") 
                     SF-ADJUSTMENT "Selection Threshold"                 (list 10 0 255 1 10 1 SF-SLIDER)
                     SF-ADJUSTMENT "Size Threshold"                      (list 100 0 2000 10 100 1 SF-SLIDER)        
                     SF-ADJUSTMENT "Abort Limit"                         (list 5 1 100 1 10 1 SF-SLIDER)                         
