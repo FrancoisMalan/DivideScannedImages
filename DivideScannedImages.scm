@@ -173,6 +173,7 @@
             (set! newFileName (string-append inDir pathchar inFileName 
                                        (substring "00000" (string-length (number->string (+ inFileNumber numextracted)))) 
                                        (number->string (+ inFileNumber numextracted)) saveString))
+            (gimp-image-set-resolution tempImage 600 600)
             (gimp-file-save RUN-NONINTERACTIVE tempImage tempLayer newFileName newFileName)
             (gimp-display-delete tempdisplay)
           )
