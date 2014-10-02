@@ -27,6 +27,7 @@
 ; v1.9 - added sort code to the batch script
 ; v2.0 - expand image on edges so that selection works properly
 ; v2.1F - (fmalan) Added TIF support
+; v2.2F - (fmalan) Added default 600dpi save, and support for reading '.tiff' extension (as alterntive to '.tif')
 
 ; License:
 ;
@@ -273,6 +274,7 @@
     (( equal? inLoadType 2 ) ".[bB][mM][pP]" )
     (( equal? inLoadType 3 ) ".[pP][nN][gG]" )
     (( equal? inLoadType 4 ) ".[tT][iI][fF]" )
+    (( equal? inLoadType 5 ) ".[tT][iI][fF][fF]" )
     ))  
 
     (set! varFileList (merge-sort string<=? (cadr (file-glob (string-append inSourceDir pathchar "*" varLoadStr)  1))))
