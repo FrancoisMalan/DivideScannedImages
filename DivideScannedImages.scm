@@ -44,7 +44,7 @@
 ; The GNU Public License is available at
 ; http://www.gnu.org/copyleft/gpl.html
 
-(define (script_fu_DivideScannedImages img inLayer inThreshold inSize inLimit inCorner inX inY inSaveFiles inDir inSaveType inFileName inFileNumber)
+(define (script_fu_DivideScannedImages img inLayer inThreshold inSize inLimit inCorner inX inY inSaveFiles inDir inSaveType inSaveDpi inFileName inFileNumber)
   (let*
     (
       (width (car (gimp-image-width img)))
@@ -174,7 +174,7 @@
             (set! newFileName (string-append inDir pathchar inFileName 
                                        (substring "00000" (string-length (number->string (+ inFileNumber numextracted)))) 
                                        (number->string (+ inFileNumber numextracted)) saveString))
-            (gimp-image-set-resolution tempImage 600 600)
+            (gimp-image-set-resolution tempImage inSaveDpi inSaveDpi)
             (gimp-file-save RUN-NONINTERACTIVE tempImage tempLayer newFileName newFileName)
             (gimp-display-delete tempdisplay)
           )
@@ -221,11 +221,12 @@
                     SF-TOGGLE     "Save and Close Extracted Images"     FALSE       
                     SF-DIRNAME    "Save Directory"                      ""
                     SF-OPTION     "Save File Type"                      (list  "jpg" "bmp" "png" "tif")
+					SF-ADJUSTMENT "Save DPI"                      		(list 100 0 2000 10 600 1 SF-SLIDER)
                     SF-STRING     "Save File Base Name"                 "IMAGE"
                     SF-ADJUSTMENT "Save File Start Number"              (list 0 0 9000 1 100 0 SF-SPINNER)                  
 )
 
-(define (script_fu_BatchDivideScannedImages inSourceDir inLoadType inThreshold inSize inLimit inCorner inX inY inDestDir inSaveType inFileName inFileNumber)
+(define (script_fu_BatchDivideScannedImages inSourceDir inLoadType inThreshold inSize inLimit inCorner inX inY inDestDir inSaveType inSaveDpi inFileName inFileNumber)
 (let*
     (
       (varLoadStr "")
@@ -287,7 +288,7 @@
         (gimp-drawable-set-name drawable "1919191919")
         (gimp-progress-set-text (string-append "Working on ->" filename))
       
-        (script_fu_DivideScannedImages image drawable inThreshold inSize inLimit inCorner inX inY TRUE inDestDir inSaveType inFileName varCounter)
+        (script_fu_DivideScannedImages image drawable inThreshold inSize inLimit inCorner inX inY TRUE inDestDir inSaveType inSaveDpi inFileName varCounter)
  
         ;increment by number extracted.
         (set! varCounter (+ varCounter (- (string->number (car (gimp-drawable-get-name drawable))) 1919191919)))
@@ -315,6 +316,7 @@
                     SF-ADJUSTMENT "Background Sample Y Offset"          (list 5 1 100 1 10 1 SF-SLIDER)
                     SF-DIRNAME    "Save Directory"                      ""
                     SF-OPTION     "Save File Type"                      (list "jpg" "bmp" "png" "tif")
+					SF-ADJUSTMENT "Save DPI"                      		(list 600 0 2000 10 100 1 SF-SLIDER)
                     SF-STRING     "Save File Base Name"                 "IMAGE"
                     SF-ADJUSTMENT "Save File Start Number"              (list 0 0 9000 1 100 0 SF-SPINNER)       
 )
