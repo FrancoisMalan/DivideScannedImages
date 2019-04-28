@@ -272,12 +272,11 @@
                     SF-STRING     "Save File Base Name"                 "Crop"
                     SF-ADJUSTMENT "Save File Start Number"              (list 1 0 9000 1 100 0 SF-SPINNER)                  
 )
-(define (script_fu_BatchDivideScannedImages inSourceDir inLoadType inSquareCrop inPadding inLimit inDeskew inAutoClose inThreshold inSize inDefBg inBgCol inCorner inX inY inSaveInSourceDir inDestDir inSaveType inJpgQual inFileName inFileNumber)
+(define (script_fu_BatchDivideScannedImages inSourceDir inLoadType inSquareCrop inPadding inLimit inDeskew inAutoClose inThreshold inSize inDefBg inBgCol inCorner inX inY inSaveInSourceDir inDestDir inSaveType inJpgQual inFileName)
 (let*
     (
       (varLoadStr "")
       (varFileList 0)
-      (varCounter inFileNumber)
       (pathchar (if (equal? (substring gimp-dir 0 1) "/") "/" "\\"))
     )
     
@@ -334,10 +333,8 @@
         (gimp-drawable-set-name drawable "1919191919")
         (gimp-progress-set-text (string-append "Working on ->" filename))
       
-        (script_fu_DivideScannedImages image drawable inSquareCrop inPadding inLimit inDeskew inAutoClose inThreshold inSize inDefBg inBgCol inCorner inX inY inSaveInSourceDir inDestDir inSaveType inJpgQual inFileName varCounter)
+        (script_fu_DivideScannedImages image drawable inSquareCrop inPadding inLimit inDeskew inAutoClose inThreshold inSize inDefBg inBgCol inCorner inX inY inSaveInSourceDir inDestDir inSaveType inJpgQual inFileName 1)
  
-        ;increment by number extracted.
-        (set! varCounter (+ varCounter (- (string->number (car (gimp-drawable-get-name drawable))) 1919191919)))
         (gimp-image-delete image)
       )
       (set! varFileList (cdr varFileList))
@@ -370,5 +367,4 @@
                     SF-OPTION     "Save File Type"                      (list "jpg" "png")
                     SF-ADJUSTMENT "JPG Quality"                         (list 0.8 0.1 1.0 1 10 1 SF-SLIDER)
                     SF-STRING     "Save File Base Name"                 "Crop"
-                    SF-ADJUSTMENT "Save File Start Number"              (list 1 0 9000 1 100 0 SF-SPINNER)       
 )
