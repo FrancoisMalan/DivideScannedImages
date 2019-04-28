@@ -314,13 +314,14 @@
 
     ;begin here
     (set! varLoadStr
-    (cond 
-    (( equal? inLoadType 0 ) ".[jJ][pP][gG]" )
-    (( equal? inLoadType 1 ) ".[jJ][pP][eE][gG]" )
-    (( equal? inLoadType 2 ) ".[bB][mM][pP]" )
-    (( equal? inLoadType 3 ) ".[pP][nN][gG]" )
-    (( equal? inLoadType 4 ) ".[tT][iI][fF]" )
-    (( equal? inLoadType 5 ) ".[tT][iI][fF][fF]" )
+    (cond
+    (( equal? inLoadType 0)  "" )
+    (( equal? inLoadType 1 ) ".[jJ][pP][gG]" )
+    (( equal? inLoadType 2 ) ".[jJ][pP][eE][gG]" )
+    (( equal? inLoadType 3 ) ".[bB][mM][pP]" )
+    (( equal? inLoadType 4 ) ".[pP][nN][gG]" )
+    (( equal? inLoadType 5 ) ".[tT][iI][fF]" )
+    (( equal? inLoadType 6 ) ".[tT][iI][fF][fF]" )
     ))  
 
     (set! varFileList (merge-sort string<=? (cadr (file-glob (string-append inSourceDir pathchar "*" varLoadStr)  1))))
@@ -349,7 +350,7 @@
                     "Feb 2016"
                     ""
                     SF-DIRNAME    "Load from" ""
-                    SF-OPTION     "Load File Type" (list "jpg" "jpeg" "bmp" "png" "tif" "tiff") 
+                    SF-OPTION     "Load File Type" (list "any" "jpg" "jpeg" "bmp" "png" "tif" "tiff")
                     SF-TOGGLE "Force square crop"                       FALSE
                     SF-ADJUSTMENT "Square border padding (pixels)"      (list 0 0 100 1 10 0 SF-SLIDER)
                     SF-ADJUSTMENT "Max number of items"                 (list 10 1 100 1 10 0 SF-SLIDER)  
