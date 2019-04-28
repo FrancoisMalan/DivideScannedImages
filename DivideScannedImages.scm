@@ -205,7 +205,7 @@
               (set! targetDir (unbreakupstr (butlast (strbreakup imgpath pathchar)) pathchar))
             )
             
-            (set! newFileName (string-append targetDir pathchar inFileName 
+            (set! newFileName (string-append targetDir pathchar (car(gimp-image-get-name img)) inFileName
                                      (substring "00000" (string-length (number->string (+ inFileNumber numextracted))))
                                      (number->string (+ inFileNumber numextracted)) saveString))
             (gimp-image-set-resolution tempImage 600 600)  ; The DPI
