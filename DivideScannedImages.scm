@@ -69,9 +69,9 @@
       (cond 
         (( equal? inSaveType 0 ) ".jpg" )
         (( equal? inSaveType 1 ) ".png" )
+        (( equal? inSaveType 2) (string-append "." (car(reverse(strbreakup (car (gimp-image-get-name img)) ".")))))
       )
     ))
-    
     ; The block below was included in the original "DivideScannedImages.scm", but seems to cause problems by adding a white border which is then subsequently sampled.
     ; Expand the image a bit to fix problem with images near the right edge. Probably could get away just expanding
     ; width but go ahead and expand height in case same issue is there...
@@ -364,7 +364,7 @@
                     SF-ADJUSTMENT "Auto-background sample y-offset"     (list 25 5 100 1 10 1 SF-SLIDER)
                     SF-TOGGLE     "Save output to source directory"     TRUE
                     SF-DIRNAME    "Target directory (if not to source)" ""
-                    SF-OPTION     "Save File Type"                      (list "jpg" "png")
+                    SF-OPTION     "Save File Type"                      (list "jpg" "png" "same as input")
                     SF-ADJUSTMENT "JPG Quality"                         (list 0.8 0.1 1.0 1 10 1 SF-SLIDER)
                     SF-STRING     "Save File Base Name"                 "Crop"
 )
