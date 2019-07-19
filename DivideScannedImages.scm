@@ -69,9 +69,9 @@
       (cond 
         (( equal? inSaveType 0 ) ".jpg" )
         (( equal? inSaveType 1 ) ".png" )
+        (( equal? inSaveType 2) (string-append "." (car(reverse(strbreakup (car (gimp-image-get-name img)) ".")))))
       )
     ))
-    
     ; The block below was included in the original "DivideScannedImages.scm", but seems to cause problems by adding a white border which is then subsequently sampled.
     ; Expand the image a bit to fix problem with images near the right edge. Probably could get away just expanding
     ; width but go ahead and expand height in case same issue is there...
@@ -205,7 +205,7 @@
               (set! targetDir (unbreakupstr (butlast (strbreakup imgpath pathchar)) pathchar))
             )
             
-            (set! newFileName (string-append targetDir pathchar inFileName 
+            (set! newFileName (string-append targetDir pathchar (car(gimp-image-get-name img)) inFileName
                                      (substring "00000" (string-length (number->string (+ inFileNumber numextracted))))
                                      (number->string (+ inFileNumber numextracted)) saveString))
             (gimp-image-set-resolution tempImage 600 600)  ; The DPI
@@ -272,12 +272,11 @@
                     SF-STRING     "Save File Base Name"                 "Crop"
                     SF-ADJUSTMENT "Save File Start Number"              (list 1 0 9000 1 100 0 SF-SPINNER)                  
 )
-(define (script_fu_BatchDivideScannedImages inSourceDir inLoadType inSquareCrop inPadding inLimit inDeskew inAutoClose inThreshold inSize inDefBg inBgCol inCorner inX inY inSaveInSourceDir inDestDir inSaveType inJpgQual inFileName inFileNumber)
+(define (script_fu_BatchDivideScannedImages inSourceDir inLoadType inSquareCrop inPadding inLimit inDeskew inAutoClose inThreshold inSize inDefBg inBgCol inCorner inX inY inSaveInSourceDir inDestDir inSaveType inJpgQual inFileName)
 (let*
     (
       (varLoadStr "")
       (varFileList 0)
-      (varCounter inFileNumber)
       (pathchar (if (equal? (substring gimp-dir 0 1) "/") "/" "\\"))
     )
     
@@ -315,13 +314,14 @@
 
     ;begin here
     (set! varLoadStr
-    (cond 
-    (( equal? inLoadType 0 ) ".[jJ][pP][gG]" )
-    (( equal? inLoadType 1 ) ".[jJ][pP][eE][gG]" )
-    (( equal? inLoadType 2 ) ".[bB][mM][pP]" )
-    (( equal? inLoadType 3 ) ".[pP][nN][gG]" )
-    (( equal? inLoadType 4 ) ".[tT][iI][fF]" )
-    (( equal? inLoadType 5 ) ".[tT][iI][fF][fF]" )
+    (cond
+    (( equal? inLoadType 0)  "" )
+    (( equal? inLoadType 1 ) ".[jJ][pP][gG]" )
+    (( equal? inLoadType 2 ) ".[jJ][pP][eE][gG]" )
+    (( equal? inLoadType 3 ) ".[bB][mM][pP]" )
+    (( equal? inLoadType 4 ) ".[pP][nN][gG]" )
+    (( equal? inLoadType 5 ) ".[tT][iI][fF]" )
+    (( equal? inLoadType 6 ) ".[tT][iI][fF][fF]" )
     ))  
 
     (set! varFileList (merge-sort string<=? (cadr (file-glob (string-append inSourceDir pathchar "*" varLoadStr)  1))))
@@ -334,10 +334,8 @@
         (gimp-drawable-set-name drawable "1919191919")
         (gimp-progress-set-text (string-append "Working on ->" filename))
       
-        (script_fu_DivideScannedImages image drawable inSquareCrop inPadding inLimit inDeskew inAutoClose inThreshold inSize inDefBg inBgCol inCorner inX inY inSaveInSourceDir inDestDir inSaveType inJpgQual inFileName varCounter)
+        (script_fu_DivideScannedImages image drawable inSquareCrop inPadding inLimit inDeskew inAutoClose inThreshold inSize inDefBg inBgCol inCorner inX inY inSaveInSourceDir inDestDir inSaveType inJpgQual inFileName 1)
  
-        ;increment by number extracted.
-        (set! varCounter (+ varCounter (- (string->number (car (gimp-drawable-get-name drawable))) 1919191919)))
         (gimp-image-delete image)
       )
       (set! varFileList (cdr varFileList))
@@ -352,7 +350,7 @@
                     "Feb 2016"
                     ""
                     SF-DIRNAME    "Load from" ""
-                    SF-OPTION     "Load File Type" (list "jpg" "jpeg" "bmp" "png" "tif" "tiff") 
+                    SF-OPTION     "Load File Type" (list "any" "jpg" "jpeg" "bmp" "png" "tif" "tiff")
                     SF-TOGGLE "Force square crop"                       FALSE
                     SF-ADJUSTMENT "Square border padding (pixels)"      (list 0 0 100 1 10 0 SF-SLIDER)
                     SF-ADJUSTMENT "Max number of items"                 (list 10 1 100 1 10 0 SF-SLIDER)  
@@ -367,8 +365,7 @@
                     SF-ADJUSTMENT "Auto-background sample y-offset"     (list 25 5 100 1 10 1 SF-SLIDER)
                     SF-TOGGLE     "Save output to source directory"     TRUE
                     SF-DIRNAME    "Target directory (if not to source)" ""
-                    SF-OPTION     "Save File Type"                      (list "jpg" "png")
+                    SF-OPTION     "Save File Type"                      (list "jpg" "png" "same as input")
                     SF-ADJUSTMENT "JPG Quality"                         (list 0.8 0.1 1.0 1 10 1 SF-SLIDER)
                     SF-STRING     "Save File Base Name"                 "Crop"
-                    SF-ADJUSTMENT "Save File Start Number"              (list 1 0 9000 1 100 0 SF-SPINNER)       
 )
