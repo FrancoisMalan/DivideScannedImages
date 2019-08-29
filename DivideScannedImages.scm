@@ -211,8 +211,11 @@
                                      (number->string (+ inFileNumber numextracted)) saveString))
             (gimp-image-set-resolution tempImage 600 600)  ; The DPI
             (if (equal? saveString ".jpg") 
-            (file-jpeg-save RUN-NONINTERACTIVE tempImage tempLayer newFileName newFileName inJpgQual 0.1 1 0 "Custom JPG compression by FrancoisM" 0 1 0 1)
-            (gimp-file-save RUN-NONINTERACTIVE tempImage tempLayer newFileName newFileName)
+              (file-jpeg-save RUN-NONINTERACTIVE tempImage tempLayer newFileName newFileName inJpgQual 0.1 1 0 "Custom JPG compression by FrancoisM" 0 1 0 1)
+              (if (equal? saveString ".tiff")
+                (file-tiff-save RUN-NONINTERACTIVE tempImage tempLayer newFileName newFileName 4)
+                (gimp-file-save RUN-NONINTERACTIVE tempImage tempLayer newFileName newFileName)
+              )
             )
             (if (= inAutoClose TRUE)
             (begin
