@@ -69,6 +69,7 @@
       (cond 
         (( equal? inSaveType 0 ) ".jpg" )
         (( equal? inSaveType 1 ) ".png" )
+        (( equal? inSaveType 2 ) ".tiff" )
       )
     ))
     
@@ -210,8 +211,11 @@
                                      (number->string (+ inFileNumber numextracted)) saveString))
             (gimp-image-set-resolution tempImage 600 600)  ; The DPI
             (if (equal? saveString ".jpg") 
-            (file-jpeg-save RUN-NONINTERACTIVE tempImage tempLayer newFileName newFileName inJpgQual 0.1 1 0 "Custom JPG compression by FrancoisM" 0 1 0 1)
-            (gimp-file-save RUN-NONINTERACTIVE tempImage tempLayer newFileName newFileName)
+              (file-jpeg-save RUN-NONINTERACTIVE tempImage tempLayer newFileName newFileName inJpgQual 0.1 1 0 "Custom JPG compression by FrancoisM" 0 1 0 1)
+              (if (equal? saveString ".tiff")
+                (file-tiff-save RUN-NONINTERACTIVE tempImage tempLayer newFileName newFileName 4)
+                (gimp-file-save RUN-NONINTERACTIVE tempImage tempLayer newFileName newFileName)
+              )
             )
             (if (= inAutoClose TRUE)
             (begin
@@ -267,7 +271,7 @@
                     SF-ADJUSTMENT "Auto-background sample y-offset"     (list 25 5 100 1 10 1 SF-SLIDER)
                     SF-TOGGLE     "Save output to source directory"     TRUE
                     SF-DIRNAME    "Target directory (if not to source)" ""
-                    SF-OPTION     "Save File Type"                      (list  "jpg" "png")
+                    SF-OPTION     "Save File Type"                      (list  "jpg" "png" "tiff")
                     SF-ADJUSTMENT "JPG Quality"                         (list 0.8 0.1 1.0 1 10 1 SF-SLIDER)
                     SF-STRING     "Save File Base Name"                 "Crop"
                     SF-ADJUSTMENT "Save File Start Number"              (list 1 0 9000 1 100 0 SF-SPINNER)                  
