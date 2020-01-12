@@ -30,8 +30,7 @@
 
 (define (script-fu-isolate-images-on-background img inLayer inSquareCrop inPadding inLimit inDeskew inAutoClose inThreshold inSize inDefBg inBgCol inCorner inX inY inSaveInSourceDir inDir inSaveType inJpgQual inFileName inFileNumber)
   (let*
-    (
-      (inSaveFiles TRUE)
+    ( (inSaveFiles TRUE)
       (width (car (gimp-image-width img)))
       (height (car (gimp-image-height img)))
       (newpath 0)
@@ -73,12 +72,13 @@
     
     ;set up saving
     (if (= inSaveFiles TRUE)
-      (set! saveString
-      (cond 
-        (( equal? inSaveType 0 ) ".jpg" )
-        (( equal? inSaveType 1 ) ".png" )
-      )
-    ))
+	(set! saveString
+	      (cond 
+	       (( equal? inSaveType 0 ) ".jpg" )
+	       (( equal? inSaveType 1 ) ".png" )
+	      )
+	)
+    )
     
     ; The block below was included in the original "DivideScannedImages.scm", but seems to cause problems by adding a white border which is then subsequently sampled.
     ; Expand the image a bit to fix problem with images near the right edge. Probably could get away just expanding
@@ -411,6 +411,7 @@
     )
     
     ; nobi: determine list of files differently when recursion is requested
+    (write "here") (newline)
     (if inRecurseDirectories
 	(let ((files (cadr (file-glob-recursively inSourceDir (string-append "*" varLoadStr) 1))))
 	  (write files) (newline)
@@ -456,12 +457,12 @@
 				                fragmentFileName  ; nobi: changed from inFileName
 				                varCounter)
  
-        ;increment by number extracted.
-        ; nobi: if using file name as base, restart numbering for every original file
-        (if (= inUseFileNameAsBase TRUE)
-          (set! varCounter inFileNumber)
+        ; increment by number extracted.
+	; nobi: if using file name as base, restart numbering for every original file
+	(if (= inUseFileNameAsBase TRUE)
+	  (set! varCounter inFileNumber)
           (set! varCounter (+ varCounter (- (string->number (car (gimp-drawable-get-name drawable))) 1919191919)))
-        )
+	)
         (gimp-image-delete image)
       )
       (set! varFileList (cdr varFileList))
@@ -476,8 +477,8 @@
                     "nobi (based on work of Francois Malan)"
                     "Jan 2020"
                     ""
-                    SF-DIRNAME    "Load from"                           ""
-                    SF-TOGGLE     "Recurse into subdirectories"         FALSE  ; nobi: added
+		    SF-DIRNAME    "Load from"                           ""
+		    SF-TOGGLE     "Recurse into subdirectories"         FALSE  ; nobi: added
                     SF-OPTION     "Load file type"                      (list "jpg" "jpeg" "bmp" "png" "tif" "tiff") 
                     SF-TOGGLE     "Force square crop"                   FALSE
                     SF-ADJUSTMENT "Square border padding (pixels)"      (list 0 0 100 1 10 0 SF-SLIDER)
@@ -495,7 +496,7 @@
                     SF-DIRNAME    "Target directory (if not to source)" ""
                     SF-OPTION     "Save file type"                      (list "jpg" "png")
                     SF-ADJUSTMENT "JPG quality"                         (list 0.8 0.1 1.0 1 10 1 SF-SLIDER)
-                    SF-TOGGLE     "Use filename as base"                FALSE  ; nobi: added
-                    SF-STRING     "Save File Base Name"                 "Crop"
+		    SF-TOGGLE     "Use filename as base"                FALSE  ; nobi: added
+		    SF-STRING     "Save File Base Name"                 "Crop"
                     SF-ADJUSTMENT "Save File Start Number"              (list 1 0 9000 1 100 0 SF-SPINNER)       
 )

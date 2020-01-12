@@ -28,9 +28,7 @@ Feel free to experiment with the settings, especially:
 * **Max number of items** which specifies the maximum number items to be extracted from a single page. 
 * In batch mode the "load from" directory points to the folder of input scanned pages, and 
 * the "target directory" to a (preferrably empty) directory that will contain the output.
-* There's an option to recurse through all subdirectories.
 * The "Save file base name" specifies the prefix that will be used for each output file, which is also sequentially numbered
-* If you check "Use Filename as Base Name", the newly created images will use a name derived from their original.
 
 Click on OK, and watch it run through your scanned image(s).
 
