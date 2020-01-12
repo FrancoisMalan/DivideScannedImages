@@ -1,4 +1,12 @@
-; DivideScannedImages.scm
+; Isolage Images On Background
+; iiob.scm
+; by nobisoft, Jan 2020
+; Based on all the work of the other nice people mentioned below! See https://github.com/FrancoisMalan/DivideScannedImages
+; Added two options to batch processing:
+; - Recurse into subdirectories
+; - Use original file name for cropped images (instead of constant filename prefix) (and start numbering at 1 for each original in this case)
+
+; DivideScannedImages.scm 
 ; by Francois Malan
 ; Based on a script originally by Rob Antonishen http://ffaat.pointclark.net
 ;
@@ -20,7 +28,7 @@
 ; The GNU Public License is available at
 ; http://www.gnu.org/copyleft/gpl.html
 
-(define (script_fu_DivideScannedImages img inLayer inSquareCrop inPadding inLimit inDeskew inAutoClose inThreshold inSize inDefBg inBgCol inCorner inX inY inSaveInSourceDir inDir inSaveType inJpgQual inFileName inFileNumber)
+(define (script-fu-isolate-images-on-background img inLayer inSquareCrop inPadding inLimit inDeskew inAutoClose inThreshold inSize inDefBg inBgCol inCorner inX inY inSaveInSourceDir inDir inSaveType inJpgQual inFileName inFileNumber)
   (let*
     (
       (inSaveFiles TRUE)
@@ -244,24 +252,24 @@
   )
 )
 
-(script-fu-register "script_fu_DivideScannedImages"
-                    "<Image>/Filters/Divide Scanned Images..."
-                    "Attempts to isolate images from a uniform background and saves a new square image for each"
-                    "Francois Malan"
-                    "Francois Malan"
-                    "Feb 2016"
+(script-fu-register "script-fu-isolate-images-on-background"
+                    "<Image>/Filters/Isolate Images on Background"
+                    "Isolates images from a uniform background and saves a new square image for each."
+                    "(c) by nobisoft (based on work by Francois Malan)"
+                    "nobi (based on work by Francois Malan)"
+                    "Jan 2020"
                     "RGB* GRAY*"
-                    SF-IMAGE      "image"      0
-                    SF-DRAWABLE   "drawable"   0
-                    SF-TOGGLE "Force square crop"                       FALSE
+                    SF-IMAGE      "image"                               0
+                    SF-DRAWABLE   "drawable"                            0
+                    SF-TOGGLE     "Force square crop"                   FALSE
                     SF-ADJUSTMENT "Square border padding (pixels)"      (list 0 0 100 1 10 0 SF-SLIDER)
                     SF-ADJUSTMENT "Max number of items"                 (list 10 1 100 1 10 0 SF-SLIDER)
-                    SF-TOGGLE "Run Deskew"                              TRUE
-                    SF-TOGGLE "Auto-close sub-images after saving"      TRUE
+                    SF-TOGGLE     "Run Deskew"                          TRUE
+                    SF-TOGGLE     "Auto-close sub-images after saving"  TRUE
                     SF-ADJUSTMENT "Selection Threshold"                 (list 25 0 255 1 10 1 SF-SLIDER)
                     SF-ADJUSTMENT "Size Threshold"                      (list 100 0 2000 10 100 1 SF-SLIDER)
-                    SF-TOGGLE "Manually define background colour"       FALSE
-                    SF-COLOR "Manual background colour"                 '(255 255 255)
+                    SF-TOGGLE     "Manually define background colour"   FALSE
+                    SF-COLOR      "Manual background colour"            '(255 255 255)
                     SF-OPTION     "Auto-background sample corner"       (list "Top Left" "Top Right" "Bottom Left" "Bottom Right")
                     SF-ADJUSTMENT "Auto-background sample x-offset"     (list 25 5 100 1 10 1 SF-SLIDER)
                     SF-ADJUSTMENT "Auto-background sample y-offset"     (list 25 5 100 1 10 1 SF-SLIDER)
@@ -272,15 +280,92 @@
                     SF-STRING     "Save File Base Name"                 "Crop"
                     SF-ADJUSTMENT "Save File Start Number"              (list 1 0 9000 1 100 0 SF-SPINNER)                  
 )
-(define (script_fu_BatchDivideScannedImages inSourceDir inLoadType inSquareCrop inPadding inLimit inDeskew inAutoClose inThreshold inSize inDefBg inBgCol inCorner inX inY inSaveInSourceDir inDestDir inSaveType inJpgQual inFileName inFileNumber)
-(let*
-    (
-      (varLoadStr "")
-      (varFileList 0)
-      (varCounter inFileNumber)
-      (pathchar (if (equal? (substring gimp-dir 0 1) "/") "/" "\\"))
+
+
+; nobi: Jan 2020
+(define (filename-basename fileName)
+  ;; Return the base part of a fileName, i.e. without directory/volume and without extension
+  ;; credits to https://stackoverflow.com/questions/1386293/how-to-parse-out-base-file-name-using-script-fu
+  (let* (
+         (pathSep (if (equal? (substring gimp-dir 0 1) "/") "/" "\\"))
+         (tail (car (reverse (strbreakup fileName pathSep))))
+        )
+    (unbreakupstr (reverse (cdr (reverse (strbreakup tail ".")))) ".")
+  )
+)
+
+; nobi: Jan 2020
+(define (non-empty-directory? fileName)
+  ;; Return true if fileName designates a non-empty directory
+  (let* (
+         (pathSep (if (equal? (substring gimp-dir 0 1) "/") "/" "\\"))
+        )
+    (< 0 (car (file-glob (string-append fileName pathSep "*") 1)))
+  )
+)
+
+; nobi: Jan 2020
+(define (file-glob-recursively dirName globStr encoding)
+  ;; Return a list of all files in dirName or its subdirectories which match globstr
+  ;; credits to https://stackoverflow.com/questions/7806198/how-to-get-a-list-of-files-jpg-from-all-folders
+  ; Another idea:
+  ; (define (recurse-or-nil-or-match fileName)
+  ;   (cond (
+  ;     ((non-empty-directory? fileName) (file-glob-recursively fileName globStr))
+  ;     ((matches? globStr (tail fileName)) (list fileName))
+  ;     (#t '())
+  ;   )
+  ; )
+  ; then do:
+  ; (append-map recurse-or-nil-or-match allFiles)
+  (let* (
+         (pathSep (if (equal? (substring gimp-dir 0 1) "/") "/" "\\"))
+         (allFiles (cadr (file-glob (string-append dirName pathSep "*") 1)))
+         (subDirs (filter non-empty-directory? allFiles))
+         (matchingFiles (cadr (file-glob (string-append dirName pathSep globStr) encoding)))
+        )
+    (while (not (null? subDirs))
+      (set! matchingFiles (append matchingFiles (cadr (file-glob-recursively (car subDirs) globStr encoding))))
+      (set! subDirs (cdr subDirs))     
     )
-    
+    (list (length matchingFiles) matchingFiles)
+  )
+)
+
+; nobi Jan 2020
+; Added Boolean inRecurseDirectories, to indicate that directories shall be searched recursively
+; Added Boolean inUseFileNameAsBase, to indicate that the original file's base name shall be used with a counter, instead of inFileName
+(define (script-fu-batch-isolate-images-on-background
+	 inSourceDir
+	 inRecurseDirectories  ; nobi: added
+	 inLoadType
+	 inSquareCrop
+	 inPadding
+	 inLimit
+	 inDeskew
+	 inAutoClose
+	 inThreshold
+	 inSize
+	 inDefBg
+	 inBgCol
+	 inCorner
+	 inX
+	 inY
+	 inSaveInSourceDir
+	 inDestDir
+	 inSaveType
+	 inJpgQual
+	 inUseFileNameAsBase ; nobi: added 
+	 inFileName
+	 inFileNumber
+	 )
+  (let* (
+         (varLoadStr "")
+         (varFileList 0)
+         (varCounter inFileNumber)
+         (pathchar (if (equal? (substring gimp-dir 0 1) "/") "/" "\\"))
+        )
+
     (define split
       (lambda (ls)
         (letrec ((split-h (lambda (ls ls1 ls2)
@@ -312,63 +397,105 @@
                   (merge pred
                     (merge-sort pred (car splits))
                     (merge-sort pred (cdr splits))))))))
-
+    
     ;begin here
     (set! varLoadStr
-    (cond 
-    (( equal? inLoadType 0 ) ".[jJ][pP][gG]" )
-    (( equal? inLoadType 1 ) ".[jJ][pP][eE][gG]" )
-    (( equal? inLoadType 2 ) ".[bB][mM][pP]" )
-    (( equal? inLoadType 3 ) ".[pP][nN][gG]" )
-    (( equal? inLoadType 4 ) ".[tT][iI][fF]" )
-    (( equal? inLoadType 5 ) ".[tT][iI][fF][fF]" )
-    ))  
+	  (cond 
+	   (( equal? inLoadType 0 ) ".[jJ][pP][gG]" )
+	   (( equal? inLoadType 1 ) ".[jJ][pP][eE][gG]" )
+	   (( equal? inLoadType 2 ) ".[bB][mM][pP]" )
+	   (( equal? inLoadType 3 ) ".[pP][nN][gG]" )
+	   (( equal? inLoadType 4 ) ".[tT][iI][fF]" )
+	   (( equal? inLoadType 5 ) ".[tT][iI][fF][fF]" )
+	   )
+    )
+    
+    ; nobi: determine list of files differently when recursion is requested
+    (if inRecurseDirectories
+	(let ((files (cadr (file-glob-recursively inSourceDir (string-append "*" varLoadStr) 1))))
+	  (write files) (newline)
+	  (set! varFileList (merge-sort string<=? files))
+	  )
+      (set! varFileList (merge-sort string<=? (cadr (file-glob (string-append inSourceDir pathchar "*" varLoadStr)  1))))
+    )
 
-    (set! varFileList (merge-sort string<=? (cadr (file-glob (string-append inSourceDir pathchar "*" varLoadStr)  1))))
     (while (not (null? varFileList))
       (let* ((filename (car varFileList))
              (image (car (gimp-file-load RUN-NONINTERACTIVE filename filename)))
-             (drawable (car (gimp-image-get-active-layer image))))
-
+             (drawable (car (gimp-image-get-active-layer image)))
+	     (fragmentFileName inFileName)
+	    )
+	
+	; nobi: if requested, use original file name as base
+	(if (= inUseFileNameAsBase TRUE)
+	    (set! fragmentFileName (string-append (filename-basename filename) "-"))
+	)
+	
         ;flag for batch mode
         (gimp-drawable-set-name drawable "1919191919")
         (gimp-progress-set-text (string-append "Working on ->" filename))
       
-        (script_fu_DivideScannedImages image drawable inSquareCrop inPadding inLimit inDeskew inAutoClose inThreshold inSize inDefBg inBgCol inCorner inX inY inSaveInSourceDir inDestDir inSaveType inJpgQual inFileName varCounter)
+        (script-fu-isolate-images-on-background image
+				    		drawable
+				                inSquareCrop
+				                inPadding
+				                inLimit
+				                inDeskew
+				                inAutoClose
+				                inThreshold
+				                inSize
+				                inDefBg
+				                inBgCol
+				                inCorner
+				                inX
+				                inY
+				                inSaveInSourceDir
+				                inDestDir
+				                inSaveType
+				                inJpgQual
+				                fragmentFileName  ; nobi: changed from inFileName
+				                varCounter)
  
         ;increment by number extracted.
-        (set! varCounter (+ varCounter (- (string->number (car (gimp-drawable-get-name drawable))) 1919191919)))
+        ; nobi: if using file name as base, restart numbering for every original file
+        (if (= inUseFileNameAsBase TRUE)
+          (set! varCounter inFileNumber)
+          (set! varCounter (+ varCounter (- (string->number (car (gimp-drawable-get-name drawable))) 1919191919)))
+        )
         (gimp-image-delete image)
       )
       (set! varFileList (cdr varFileList))
     )
   )
 )
-(script-fu-register "script_fu_BatchDivideScannedImages"
-                    "<Toolbox>/Xtns/Batch Tools/Batch Divide Scanned Images..."
-                    "Batch-divide a folder of full-page scans of images."
-                    "Francois Malan"
-                    "Francois Malan"
-                    "Feb 2016"
+
+(script-fu-register "script-fu-batch-isolate-images-on-background"
+                    "<Toolbox>/Xtns/Batch Tools/Isolate Images on Background..."
+                    "Isolate (and save) images in a background, for many files at once."
+                    "(c) by nobisoft (based on work of Francois Malan)"
+                    "nobi (based on work of Francois Malan)"
+                    "Jan 2020"
                     ""
-                    SF-DIRNAME    "Load from" ""
-                    SF-OPTION     "Load File Type" (list "jpg" "jpeg" "bmp" "png" "tif" "tiff") 
-                    SF-TOGGLE "Force square crop"                       FALSE
+                    SF-DIRNAME    "Load from"                           ""
+                    SF-TOGGLE     "Recurse into subdirectories"         FALSE  ; nobi: added
+                    SF-OPTION     "Load file type"                      (list "jpg" "jpeg" "bmp" "png" "tif" "tiff") 
+                    SF-TOGGLE     "Force square crop"                   FALSE
                     SF-ADJUSTMENT "Square border padding (pixels)"      (list 0 0 100 1 10 0 SF-SLIDER)
-                    SF-ADJUSTMENT "Max number of items"                 (list 10 1 100 1 10 0 SF-SLIDER)  
-                    SF-TOGGLE "Run Deskew"                              TRUE
-                    SF-TOGGLE "Auto-close sub-images after saving"      TRUE
+                    SF-ADJUSTMENT "Max number of photographs"           (list 10 1 100 1 10 0 SF-SLIDER)  
+                    SF-TOGGLE     "Deskew (if deskew.exe installed)"    TRUE
+                    SF-TOGGLE     "Close isolated images after saving"  TRUE
                     SF-ADJUSTMENT "Selection Threshold"                 (list 25 0 255 1 10 1 SF-SLIDER)
-                    SF-ADJUSTMENT "Size Threshold"                      (list 100 0 2000 10 100 1 SF-SLIDER)        
-                    SF-TOGGLE "Manually define background colour"       FALSE
-                    SF-COLOR "Manual background colour"                 '(255 255 255)
+                    SF-ADJUSTMENT "Min photograph size"                 (list 100 0 2000 10 100 1 SF-SLIDER)
+                    SF-TOGGLE     "Manually define background colour"   FALSE
+                    SF-COLOR      "Manual background colour"            '(255 255 255)
                     SF-OPTION     "Auto-background sample corner"       (list "Top Left" "Top Right" "Bottom Left" "Bottom Right")
                     SF-ADJUSTMENT "Auto-background sample x-offset"     (list 25 5 100 1 10 1 SF-SLIDER)
                     SF-ADJUSTMENT "Auto-background sample y-offset"     (list 25 5 100 1 10 1 SF-SLIDER)
                     SF-TOGGLE     "Save output to source directory"     TRUE
                     SF-DIRNAME    "Target directory (if not to source)" ""
-                    SF-OPTION     "Save File Type"                      (list "jpg" "png")
-                    SF-ADJUSTMENT "JPG Quality"                         (list 0.8 0.1 1.0 1 10 1 SF-SLIDER)
+                    SF-OPTION     "Save file type"                      (list "jpg" "png")
+                    SF-ADJUSTMENT "JPG quality"                         (list 0.8 0.1 1.0 1 10 1 SF-SLIDER)
+                    SF-TOGGLE     "Use filename as base"                FALSE  ; nobi: added
                     SF-STRING     "Save File Base Name"                 "Crop"
                     SF-ADJUSTMENT "Save File Start Number"              (list 1 0 9000 1 100 0 SF-SPINNER)       
 )
