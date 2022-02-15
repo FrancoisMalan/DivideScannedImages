@@ -69,6 +69,7 @@
       (cond 
         (( equal? inSaveType 0 ) ".jpg" )
         (( equal? inSaveType 1 ) ".png" )
+        (( equal? inSaveType 2 ) ".tif" )
       )
     ))
     
@@ -267,7 +268,7 @@
                     SF-ADJUSTMENT "Auto-background sample y-offset"     (list 25 5 100 1 10 1 SF-SLIDER)
                     SF-TOGGLE     "Save output to source directory"     TRUE
                     SF-DIRNAME    "Target directory (if not to source)" ""
-                    SF-OPTION     "Save File Type"                      (list  "jpg" "png")
+                    SF-OPTION     "Save File Type"                      (list  "jpg" "png" "tif")
                     SF-ADJUSTMENT "JPG Quality"                         (list 0.8 0.1 1.0 1 10 1 SF-SLIDER)
                     SF-STRING     "Save File Base Name"                 "Crop"
                     SF-ADJUSTMENT "Save File Start Number"              (list 1 0 9000 1 100 0 SF-SPINNER)                  
@@ -367,7 +368,7 @@
                     SF-ADJUSTMENT "Auto-background sample y-offset"     (list 25 5 100 1 10 1 SF-SLIDER)
                     SF-TOGGLE     "Save output to source directory"     TRUE
                     SF-DIRNAME    "Target directory (if not to source)" ""
-                    SF-OPTION     "Save File Type"                      (list "jpg" "png")
+                    SF-OPTION     "Save File Type"                      (list "jpg" "png" "tif")
                     SF-ADJUSTMENT "JPG Quality"                         (list 0.8 0.1 1.0 1 10 1 SF-SLIDER)
                     SF-STRING     "Save File Base Name"                 "Crop"
                     SF-ADJUSTMENT "Save File Start Number"              (list 1 0 9000 1 100 0 SF-SPINNER)       
